@@ -26,15 +26,11 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
 
-      # Passo 4: Inicializar o Terraform
+      # Passo 3: Inicializar o Terraform
       - name: Initialize Terraform
         run: terraform init
 
-      # Passo 5: Planejamento da execução do Terraform
-      - name: Terraform Plan
-        run: terraform plan
-
-      # Passo 6: Aplicar o Terraform (Deploy)
+      # Passo 4: Aplicar o Terraform (Deploy)
       - name: Apply Terraform
         env:
           DB_NAME: ${{ secrets.DB_NAME }}
