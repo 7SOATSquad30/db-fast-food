@@ -1,6 +1,6 @@
 # Criar o segredo no Secrets Manager
 resource "aws_secretsmanager_secret" "db_credentials" {
-  name = "rds-postgres-credentials"
+  name = "rds-postgres-credentials_v2"
 }
 
 # Armazenar as credenciais e o endpoint no Secrets Manager
