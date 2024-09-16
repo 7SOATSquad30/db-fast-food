@@ -66,7 +66,7 @@ resource "aws_db_subnet_group" "rds_subnet_group" {
 resource "aws_db_instance" "postgres" {
   allocated_storage       = 20
   engine                  = "postgres"
-  engine_version          = "13.3"
+  engine_version          = "13.14"
   instance_class          = "db.t3.micro"
   db_name                 = var.db_name  # Corrigido de 'name' para 'db_name'
   username                = var.db_username

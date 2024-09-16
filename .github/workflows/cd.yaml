@@ -30,7 +30,11 @@ jobs:
       - name: Initialize Terraform
         run: terraform init
 
-      # Passo 5: Aplicar o Terraform (Deploy)
+      # Passo 5: Planejamento da execução do Terraform
+      - name: Terraform Plan
+        run: terraform plan
+
+      # Passo 6: Aplicar o Terraform (Deploy)
       - name: Apply Terraform
         env:
           DB_NAME: ${{ secrets.DB_NAME }}
