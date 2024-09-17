@@ -72,6 +72,7 @@ resource "aws_db_subnet_group" "rds_subnet_group" {
 
 # Criar o banco de dados RDS PostgreSQL
 resource "aws_db_instance" "postgres" {
+  identifier              = "fast-food-db"  
   allocated_storage       = 20
   engine                  = "postgres"
   engine_version          = "13.14"
