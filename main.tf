@@ -2,6 +2,14 @@ provider "aws" {
   region = var.aws_region
 }
 
+terraform {
+  backend "s3" {
+    bucket = "aws-fastfood-terraform-tfstate"
+    key    = "fast-food-db/terraform.tfstate"
+    region = "us-east-1"
+  }
+}
+
 # Criar a VPC
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
@@ -64,6 +72,7 @@ resource "aws_db_subnet_group" "rds_subnet_group" {
 
 # Criar o banco de dados RDS PostgreSQL
 resource "aws_db_instance" "postgres" {
+  identifier              = "fast-food-db"  
   allocated_storage       = 20
   engine                  = "postgres"
   engine_version          = "13.14"
