@@ -1,4 +1,4 @@
-name: CD
+name: Deploy
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
       destroy_flag:
         description: 'Flag to trigger destroy'
         required: true
-        default: false
+        default: "false"
 
 jobs:
   deploy:
