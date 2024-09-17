@@ -1,9 +1,12 @@
 name: Deploy
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      destroy_flag:
+        description: 'Flag to trigger destroy'
+        required: true
+        default: true
 
 jobs:
   deploy:
@@ -26,18 +29,25 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
 
-      # Passo 3: Inicializar o Terraform
+      # Passo 4: Inicializar o Terraform
       - name: Initialize Terraform
         run: terraform init
 
-      # Passo 4: Aplicar o Terraform (Deploy)
-      - name: Apply Terraform
+      # Passo 5: Aplicar o Terraform (Deploy) ou Destruir a Infraestrutura
+      - name: Apply or Destroy Terraform
         env:
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
-          terraform apply -auto-approve \
-            -var "db_name=${{ secrets.DB_NAME }}" \
-            -var "db_username=${{ secrets.DB_USERNAME }}" \
-            -var "db_password=${{ secrets.DB_PASSWORD }}"
+          if [ "${{ github.event.inputs.destroy_flag }}" == "true" ]; then
+            terraform destroy -auto-approve \
+              -var "db_name=${{ secrets.DB_NAME }}" \
+              -var "db_username=${{ secrets.DB_USERNAME }}" \
+              -var "db_password=${{ secrets.DB_PASSWORD }}"
+          else
+            terraform apply -auto-approve \
+              -var "db_name=${{ secrets.DB_NAME }}" \
+              -var "db_username=${{ secrets.DB_USERNAME }}" \
+              -var "db_password=${{ secrets.DB_PASSWORD }}"
+          fi
