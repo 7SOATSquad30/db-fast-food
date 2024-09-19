@@ -81,7 +81,7 @@ resource "aws_db_instance" "postgres" {
   username                = var.db_username
   password                = var.db_password
   parameter_group_name    = "default.postgres13"
-  skip_final_snapshot     = true
+  skip_final_snapshot     = false
   vpc_security_group_ids  = [aws_security_group.rds_sg.id]
   db_subnet_group_name    = aws_db_subnet_group.rds_subnet_group.name
 }
