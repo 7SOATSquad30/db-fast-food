@@ -10,36 +10,9 @@ terraform {
   }
 }
 
-# Criar a VPC
-resource "aws_vpc" "main" {
-  cidr_block = var.vpc_cidr
-  tags = {
-    Name = "fastfood-vpc"
-  }
-}
-
-# Criar as Subnets
-resource "aws_subnet" "subnet_1" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = var.subnet_1_cidr
-  availability_zone = var.availability_zone_1
-  tags = {
-    Name = "subnet-1"
-  }
-}
-
-resource "aws_subnet" "subnet_2" {
-  vpc_id     = aws_vpc.main.id
-  cidr_block = var.subnet_2_cidr
-  availability_zone = var.availability_zone_2
-  tags = {
-    Name = "subnet-2"
-  }
-}
-
 # Criar o Security Group
 resource "aws_security_group" "rds_sg" {
-  vpc_id = aws_vpc.main.id
+  vpc_id = data.aws_ssm_parameter.vpc_id.value
 
   ingress {
     from_port   = 5432
@@ -63,7 +36,11 @@ resource "aws_security_group" "rds_sg" {
 # Criar o grupo de subnets para o RDS
 resource "aws_db_subnet_group" "rds_subnet_group" {
   name       = var.subnet_group_name
-  subnet_ids = [aws_subnet.subnet_1.id, aws_subnet.subnet_2.id]
+  subnet_ids = [
+    data.aws_ssm_parameter.subnet_1.value,
+    data.aws_ssm_parameter.subnet_2.value,
+    data.aws_ssm_parameter.subnet_3.value
+  ]
 
   tags = {
     Name = "rds-subnet-group"
