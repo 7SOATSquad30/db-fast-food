@@ -12,16 +12,3 @@ output "security_group_id" {
   description = "ID do Security Group"
   value       = aws_security_group.rds_sg.id
 }
-
-# Outputs para verificar os valores recuperados
-output "subnet_1_id" {
-  value = data.aws_ssm_parameter.subnet_1.value
-}
-
-output "subnet_2_id" {
-  value = data.aws_ssm_parameter.subnet_2.value
-}
-
-output "subnet_3_id" {
-  value = data.aws_ssm_parameter.subnet_3.value
-}
