@@ -1,74 +1,136 @@
-# Fast Food DB - Infraestrutura RDS PostgreSQL
+# Banco de Dados para o Sistema de Pedidos e Pagamentos
 
-Este repositório contém a infraestrutura necessária para provisionar um banco de dados **RDS PostgreSQL** na AWS, utilizando **Terraform**. A infraestrutura inclui a criação de uma **VPC**, **Subnets**, **Security Group**, e o armazenamento de credenciais no **AWS Secrets Manager** e parâmetros no **AWS Systems Manager Parameter Store**.
+Este projeto implementa um sistema de pedidos e pagamentos utilizando uma modelagem de dados relacional. A modelagem é projetada para gerenciar categorias de produtos, clientes, pedidos, itens de pedidos e pagamentos. A solução utiliza o Amazon RDS com engine PostgreSQL, aproveitando seus recursos de escalabilidade, segurança e conformidade com ACID.
 
-## Estrutura do Projeto
+## Índice
 
-```bash
-/rds-postgres-infra
-├── main.tf
-├── variables.tf
-├── outputs.tf
-├── secrets.tf
-├── parameters.tf
+1. [Modelagem de Dados](#modelagem-de-dados)
+2. [Justificativa para Utilizar o Amazon RDS com Engine PostgreSQL](#justificativa-para-utilizar-o-amazon-rds-com-engine-postgresql)
+3. [Infraestrutura do RDS com Terraform](#infraestrutura-do-rds-com-terraform)
+4. [Conclusão](#conclusão)
 
-Arquivos:
-main.tf: Define os recursos principais, como a VPC, Subnets, Security Group e o banco de dados RDS PostgreSQL.
-variables.tf: Contém as variáveis que podem ser configuradas para personalizar a infraestrutura.
-outputs.tf: Exibe as saídas importantes, como o endpoint do banco de dados e o ARN do segredo no Secrets Manager.
-secrets.tf: Armazena as credenciais do banco de dados no AWS Secrets Manager.
-parameters.tf: Armazena parâmetros como IDs de VPC, Subnets e Security Group no AWS Systems Manager Parameter Store.
-Pré-requisitos
-Terraform: Certifique-se de ter o Terraform instalado. Você pode seguir as instruções de instalação aqui.
-AWS CLI: Configure suas credenciais da AWS utilizando o AWS CLI. Instruções aqui.
-Variáveis
-As seguintes variáveis podem ser configuradas no arquivo variables.tf:
+## Modelagem de Dados
 
-aws_region: Região da AWS onde os recursos serão provisionados (padrão: us-east-1).
-vpc_cidr: CIDR block da VPC (padrão: 10.0.0.0/16).
-subnet_1_cidr: CIDR block da primeira Subnet (padrão: 10.0.1.0/24).
-subnet_2_cidr: CIDR block da segunda Subnet (padrão: 10.0.2.0/24).
-db_name: Nome do banco de dados (padrão: mydb).
-db_username: Nome de usuário do banco de dados (padrão: admin).
-db_password: Senha do banco de dados (sensível).
-Como Usar
-1. Inicializar o Terraform
-Execute o comando abaixo para inicializar o Terraform e baixar os provedores necessários:
+A modelagem de dados pode ser representada pelo seguinte diagrama de entidades e relacionamentos (ERD):
+
+### Entidades
+
+- **tb_category**:
+  - `id`: Identificador único da categoria (chave primária).
+  - `name`: Nome da categoria (único).
+  - `created_at`: Data de criação.
+  - `updated_at`: Data de atualização.
+  - `deleted_at`: Data de exclusão lógica.
+
+- **tb_product**:
+  - `id`: Identificador único do produto (chave primária).
+  - `name`: Nome do produto.
+  - `price`: Preço do produto.
+  - `description`: Descrição do produto.
+  - `img_url`: URL da imagem do produto.
+  - `category_id`: Chave estrangeira referenciando a tabela `tb_category`.
+  - `created_at`: Data de criação.
+  - `updated_at`: Data de atualização.
+  - `deleted_at`: Data de exclusão lógica.
+
+- **tb_customer**:
+  - `id`: Identificador único do cliente (chave primária).
+  - `name`: Nome do cliente.
+  - `cpf`: CPF do cliente (único).
+  - `email`: Email do cliente.
+  - `created_at`: Data de criação.
+  - `updated_at`: Data de atualização.
+  - `deleted_at`: Data de exclusão lógica.
+
+- **tb_order**:
+  - `id`: Identificador único do pedido (chave primária).
+  - `status`: Status do pedido (valores: 'DRAFT', 'SUBMITTED', 'PREPARING', 'READY', 'DELIVERED', 'CANCELED').
+  - `customer_id`: Chave estrangeira referenciando a tabela `tb_customer`.
+  - `created_at`: Data de criação.
+  - `updated_at`: Data de atualização.
+  - `deleted_at`: Data de exclusão lógica.
+
+- **tb_order_item**:
+  - `id`: Identificador único do item do pedido (chave primária).
+  - `order_id`: Chave estrangeira referenciando a tabela `tb_order`.
+  - `product_id`: Chave estrangeira referenciando a tabela `tb_product`.
+  - `quantity`: Quantidade do produto no pedido.
+  - `total_price`: Preço total do item (baseado na quantidade e preço do produto).
+
+- **tb_payment**:
+  - `id`: Identificador único do pagamento (chave primária).
+  - `order_id`: Chave estrangeira referenciando a tabela `tb_order` (único, um pedido tem um pagamento).
+  - `amount`: Valor do pagamento.
+  - `status`: Status do pagamento (valores: 'NOT_SUBMITTED', 'PROCESSING', 'REJECTED', 'COLLECTED').
+  - `created_at`: Data de criação.
+  - `updated_at`: Data de atualização.
+  - `deleted_at`: Data de exclusão lógica.
+
+### Relacionamentos
+
+- **tb_category** tem um relacionamento de 1:N com **tb_product** (uma categoria pode ter vários produtos).
+- **tb_customer** tem um relacionamento de 1:N com **tb_order** (um cliente pode fazer vários pedidos).
+- **tb_order** tem um relacionamento de 1:N com **tb_order_item** (um pedido pode ter vários itens).
+- **tb_product** tem um relacionamento de 1:N com **tb_order_item** (um produto pode estar em vários itens de pedidos).
+- **tb_order** tem um relacionamento de 1:1 com **tb_payment** (um pedido tem um pagamento).
+
+## Justificativa para Utilizar o Amazon RDS com Engine PostgreSQL
+
+### Escalabilidade e Desempenho
+
+- O PostgreSQL é conhecido por sua capacidade de lidar com grandes volumes de dados e consultas complexas.
+- O Amazon RDS facilita a escalabilidade vertical (aumento de recursos de CPU, memória e armazenamento) e horizontal (replicação de leitura) sem a necessidade de gerenciar a infraestrutura subjacente.
+
+### Conformidade com ACID
+
+- O PostgreSQL é totalmente compatível com as propriedades ACID (Atomicidade, Consistência, Isolamento e Durabilidade), garantindo a integridade dos dados, especialmente em transações financeiras e de pedidos.
+
+### Segurança e Conformidade
+
+- O Amazon RDS oferece criptografia de dados em repouso e em trânsito, backups automáticos e snapshots, além de suporte a controle de acesso baseado em funções (RBAC).
+- Facilita a conformidade com regulamentações como GDPR e HIPAA, essenciais para sistemas que lidam com dados sensíveis de clientes.
+
+### Alta Disponibilidade e Recuperação de Desastres
+
+- O Amazon RDS oferece suporte a Multi-AZ (Multi-Availability Zone), garantindo alta disponibilidade e failover automático em caso de falha de hardware ou interrupção de serviço.
+- Backups automáticos e snapshots manuais permitem a recuperação de dados em caso de falhas.
+
+### Facilidade de Gerenciamento
+
+- O Amazon RDS gerencia automaticamente tarefas administrativas, como atualizações de software, backups, monitoramento e escalabilidade, reduzindo a carga operacional da equipe.
+
+### Comunidade e Suporte
+
+- O PostgreSQL tem uma comunidade ativa e vasta documentação, facilitando a resolução de problemas e a implementação de novas funcionalidades.
+- O suporte da AWS para o RDS garante que qualquer problema crítico seja resolvido rapidamente.
+
+## Infraestrutura do RDS com Terraform
+
+### Recursos Utilizados
+
+- **`provider "aws"`**: Define o provedor AWS e a região onde os recursos serão criados.
+  
+- **`terraform { backend "s3" }`**: Configura o backend do Terraform para armazenar o estado do projeto em um bucket S3, garantindo que o estado seja compartilhado e persistente.
+
+- **`data "aws_ssm_parameter"`**: Recupera parâmetros armazenados no AWS Systems Manager (SSM), como IDs de VPC e subnets, para reutilização na configuração da infraestrutura.
+
+- **`resource "aws_security_group"`**: Cria um Security Group para o banco de dados, permitindo o tráfego na porta 5432 (PostgreSQL) e controlando o acesso à instância.
+
+- **`resource "aws_db_subnet_group"`**: Define um grupo de subnets onde o banco de dados será implantado, garantindo que ele esteja em subnets privadas.
+
+- **`resource "aws_db_instance"`**: Cria a instância do banco de dados RDS PostgreSQL, especificando parâmetros como nome do banco, usuário, senha, versão do engine e tamanho da instância.
+
+- **`resource "aws_secretsmanager_secret"`**: Cria um segredo no AWS Secrets Manager para armazenar de forma segura as credenciais do banco de dados.
+
+- **`resource "aws_secretsmanager_secret_version"`**: Armazena as credenciais e o endpoint do banco de dados no Secrets Manager, permitindo acesso seguro às informações sensíveis.
+
+- **`output`**: Define saídas que exibem informações importantes, como o endpoint do banco de dados, o ARN do segredo das credenciais e o ID do Security Group.
+
+### Conclusão
+
+Esses arquivos garantem que a infraestrutura do banco de dados seja provisionada de forma automatizada, segura e reprodutível, utilizando boas práticas de segurança e escalabilidade.
 
 
+## Conclusão
 
-
-terraform init
-2. Visualizar o Plano de Execução
-Antes de aplicar as mudanças, visualize o plano de execução com o comando:
-
-
-terraform apply
-Se você quiser aplicar as mudanças automaticamente sem confirmação, use a flag -auto-approve:
-
-
-terraform apply -auto-approve
-3. Destruir a Infraestrutura
-Se você quiser remover todos os recursos provisionados, execute o comando:
-
-
-db_endpoint: Endpoint do banco de dados RDS.
-db_credentials_secret_arn: ARN do segredo das credenciais do banco de dados no AWS Secrets Manager.
-vpc_id: ID da VPC criada.
-subnet_1_id: ID da primeira Subnet.
-subnet_2_id: ID da segunda Subnet.
-security_group_id: ID do Security Group.
-Segurança
-As credenciais do banco de dados (nome, usuário, senha e endpoint) são armazenadas de forma segura no AWS Secrets Manager.
-IDs de VPC, Subnets e Security Group são armazenados no AWS Systems Manager Parameter Store, facilitando a reutilização desses valores em outros recursos.
-Considerações Finais
-Flexibilidade: Você pode ajustar as variáveis e os recursos conforme necessário para atender às suas necessidades específicas.
-Automação: O repositório está configurado para deploy automatizado utilizando GitHub Actions. Certifique-se de proteger as branches principais (main/master) e utilizar pull requests para qualquer alteração.
-Contribuições
-Contribuições são bem-vindas! Sinta-se à vontade para abrir uma issue ou enviar um pull request.
-
-Licença
-Este projeto está licenciado sob a MIT License.
-
-Esse conteúdo pode ser copiado diretamente para o arquivo `README.md` do seu repositório.
-```
+A modelagem de dados proposta é adequada para um sistema de pedidos e pagamentos, com relacionamentos bem definidos entre produtos, categorias, clientes, pedidos e pagamentos. A escolha do Amazon RDS com engine PostgreSQL é justificada pela escalabilidade, desempenho, segurança, conformidade com ACID, suporte a dados não estruturados e facilidade de gerenciamento, tornando-o uma solução robusta e confiável para esse tipo de aplicação.
