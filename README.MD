@@ -1,12 +1,13 @@
-# Sistema de Pedidos e Pagamentos
+# Banco de Dados para o Sistema de Pedidos e Pagamentos
 
-Este projeto implementa um sistema de pedidos e pagamentos utilizando uma modelagem de dados relacional, com base no arquivo `init.sql`. A modelagem é projetada para gerenciar categorias de produtos, clientes, pedidos, itens de pedidos e pagamentos. A solução utiliza o Amazon RDS com engine PostgreSQL, aproveitando seus recursos de escalabilidade, segurança e conformidade com ACID.
+Este projeto implementa um sistema de pedidos e pagamentos utilizando uma modelagem de dados relacional. A modelagem é projetada para gerenciar categorias de produtos, clientes, pedidos, itens de pedidos e pagamentos. A solução utiliza o Amazon RDS com engine PostgreSQL, aproveitando seus recursos de escalabilidade, segurança e conformidade com ACID.
 
 ## Índice
 
 1. [Modelagem de Dados](#modelagem-de-dados)
 2. [Justificativa para Utilizar o Amazon RDS com Engine PostgreSQL](#justificativa-para-utilizar-o-amazon-rds-com-engine-postgresql)
-3. [Conclusão](#conclusão)
+3. [Infraestrutura do RDS com Terraform](#infraestrutura-do-rds-com-terraform)
+4. [Conclusão](#conclusão)
 
 ## Modelagem de Dados
 
@@ -84,10 +85,6 @@ A modelagem de dados pode ser representada pelo seguinte diagrama de entidades e
 
 - O PostgreSQL é totalmente compatível com as propriedades ACID (Atomicidade, Consistência, Isolamento e Durabilidade), garantindo a integridade dos dados, especialmente em transações financeiras e de pedidos.
 
-### Suporte a JSON e Dados Não Estruturados
-
-- O PostgreSQL oferece suporte nativo a tipos de dados JSON e JSONB, permitindo armazenar e consultar dados semi-estruturados, útil para informações adicionais sobre produtos, clientes ou pedidos.
-
 ### Segurança e Conformidade
 
 - O Amazon RDS oferece criptografia de dados em repouso e em trânsito, backups automáticos e snapshots, além de suporte a controle de acesso baseado em funções (RBAC).
@@ -106,6 +103,33 @@ A modelagem de dados pode ser representada pelo seguinte diagrama de entidades e
 
 - O PostgreSQL tem uma comunidade ativa e vasta documentação, facilitando a resolução de problemas e a implementação de novas funcionalidades.
 - O suporte da AWS para o RDS garante que qualquer problema crítico seja resolvido rapidamente.
+
+## Infraestrutura do RDS com Terraform
+
+### Recursos Utilizados
+
+- **`provider "aws"`**: Define o provedor AWS e a região onde os recursos serão criados.
+  
+- **`terraform { backend "s3" }`**: Configura o backend do Terraform para armazenar o estado do projeto em um bucket S3, garantindo que o estado seja compartilhado e persistente.
+
+- **`data "aws_ssm_parameter"`**: Recupera parâmetros armazenados no AWS Systems Manager (SSM), como IDs de VPC e subnets, para reutilização na configuração da infraestrutura.
+
+- **`resource "aws_security_group"`**: Cria um Security Group para o banco de dados, permitindo o tráfego na porta 5432 (PostgreSQL) e controlando o acesso à instância.
+
+- **`resource "aws_db_subnet_group"`**: Define um grupo de subnets onde o banco de dados será implantado, garantindo que ele esteja em subnets privadas.
+
+- **`resource "aws_db_instance"`**: Cria a instância do banco de dados RDS PostgreSQL, especificando parâmetros como nome do banco, usuário, senha, versão do engine e tamanho da instância.
+
+- **`resource "aws_secretsmanager_secret"`**: Cria um segredo no AWS Secrets Manager para armazenar de forma segura as credenciais do banco de dados.
+
+- **`resource "aws_secretsmanager_secret_version"`**: Armazena as credenciais e o endpoint do banco de dados no Secrets Manager, permitindo acesso seguro às informações sensíveis.
+
+- **`output`**: Define saídas que exibem informações importantes, como o endpoint do banco de dados, o ARN do segredo das credenciais e o ID do Security Group.
+
+### Conclusão
+
+Esses arquivos garantem que a infraestrutura do banco de dados seja provisionada de forma automatizada, segura e reprodutível, utilizando boas práticas de segurança e escalabilidade.
+
 
 ## Conclusão
 
