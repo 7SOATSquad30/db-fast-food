@@ -87,7 +87,7 @@ A modelagem de dados pode ser representada pelo seguinte diagrama de entidades e
 
 ### Segurança e Conformidade
 
-- O Amazon RDS oferece criptografia de dados em repouso e em trânsito, backups automáticos e snapshots, além de suporte a controle de acesso baseado em funções (RBAC).
+- O Amazon RDS oferece criptografia de dados em repouso e em trânsito, backups automáticos e snapshots.
 - Facilita a conformidade com regulamentações como GDPR e HIPAA, essenciais para sistemas que lidam com dados sensíveis de clientes.
 
 ### Alta Disponibilidade e Recuperação de Desastres
@@ -128,7 +128,7 @@ A modelagem de dados pode ser representada pelo seguinte diagrama de entidades e
 
 ### Conclusão
 
-Esses arquivos garantem que a infraestrutura do banco de dados seja provisionada de forma automatizada, segura e reprodutível, utilizando boas práticas de segurança e escalabilidade.
+
 
 
 ## Conclusão
