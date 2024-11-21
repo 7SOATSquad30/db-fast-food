@@ -45,10 +45,22 @@ jobs:
             terraform destroy -auto-approve \
               -var "payments_db_name=${{ secrets.PAYMENTS_DB_NAME }}" \
               -var "payments_db_username=${{ secrets.PAYMENTS_DB_USERNAME }}" \
-              -var "payments_db_password=${{ secrets.PAYMENTS_DB_PASSWORD }}"
+              -var "payments_db_password=${{ secrets.PAYMENTS_DB_PASSWORD }}" \
+              -var "products_db_name=${{ secrets.PRODUCTS_DB_NAME }}" \
+              -var "products_db_username=${{ secrets.PRODUCTS_DB_USERNAME }}" \
+              -var "products_db_password=${{ secrets.PRODUCTS_DB_PASSWORD }}" \
+              -var "customer_db_name=${{ secrets.CUSTOMER_DB_NAME }}" \
+              -var "customer_db_username=${{ secrets.CUSTOMER_DB_USERNAME }}" \
+              -var "customer_db_password=${{ secrets.CUSTOMER_DB_PASSWORD }}" 
           else
             terraform apply -auto-approve \
               -var "payments_db_name=${{ secrets.PAYMENTS_DB_NAME }}" \
               -var "payments_db_username=${{ secrets.PAYMENTS_DB_USERNAME }}" \
-              -var "payments_db_password=${{ secrets.PAYMENTS_DB_PASSWORD }}"
+              -var "payments_db_password=${{ secrets.PAYMENTS_DB_PASSWORD }}" \
+              -var "products_db_name=${{ secrets.PRODUCTS_DB_NAME }}" \
+              -var "products_db_username=${{ secrets.PRODUCTS_DB_USERNAME }}" \
+              -var "products_db_password=${{ secrets.PRODUCTS_DB_PASSWORD }}" \
+              -var "customer_db_name=${{ secrets.CUSTOMER_DB_NAME }}" \
+              -var "customer_db_username=${{ secrets.CUSTOMER_DB_USERNAME }}" \
+              -var "customer_db_password=${{ secrets.CUSTOMER_DB_PASSWORD }}" 
           fi
