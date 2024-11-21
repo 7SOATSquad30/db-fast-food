@@ -36,16 +36,9 @@ jobs:
 
       # Passo 5: Aplicar ou Destruir a Infraestrutura
       - name: Apply or Destroy Terraform
-        env:
-          PAYMENTS_DB_NAME: ${{ secrets.PAYMENTS_DB_NAME }}
-          PAYMENTS_DB_USERNAME: ${{ secrets.PAYMENTS_DB_USERNAME }}
-          PAYMENTS_DB_PASSWORD: ${{ secrets.PAYMENTS_DB_PASSWORD }}
         run: |
           if [ "${{ github.event.inputs.destroy_flag }}" == "true" ]; then
             terraform destroy -auto-approve \
-              -var "payments_db_name=${{ secrets.PAYMENTS_DB_NAME }}" \
-              -var "payments_db_username=${{ secrets.PAYMENTS_DB_USERNAME }}" \
-              -var "payments_db_password=${{ secrets.PAYMENTS_DB_PASSWORD }}" \
               -var "products_db_name=${{ secrets.PRODUCTS_DB_NAME }}" \
               -var "products_db_username=${{ secrets.PRODUCTS_DB_USERNAME }}" \
               -var "products_db_password=${{ secrets.PRODUCTS_DB_PASSWORD }}" \
@@ -54,9 +47,6 @@ jobs:
               -var "customer_db_password=${{ secrets.CUSTOMER_DB_PASSWORD }}" 
           else
             terraform apply -auto-approve \
-              -var "payments_db_name=${{ secrets.PAYMENTS_DB_NAME }}" \
-              -var "payments_db_username=${{ secrets.PAYMENTS_DB_USERNAME }}" \
-              -var "payments_db_password=${{ secrets.PAYMENTS_DB_PASSWORD }}" \
               -var "products_db_name=${{ secrets.PRODUCTS_DB_NAME }}" \
               -var "products_db_username=${{ secrets.PRODUCTS_DB_USERNAME }}" \
               -var "products_db_password=${{ secrets.PRODUCTS_DB_PASSWORD }}" \
