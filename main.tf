@@ -4,7 +4,7 @@ provider "aws" {
 
 terraform {
   backend "s3" {
-    bucket = "aws-fastfood-terraform-tfstate"
+    bucket = "aws-fastfood-fiap-terraform-tfstate"
     key    = "fast-food-db/terraform.tfstate"
     region = "us-east-1"
   }
@@ -68,15 +68,15 @@ resource "aws_db_subnet_group" "rds_subnet_group" {
 }
 
 # Criar o banco de dados RDS PostgreSQL
-resource "aws_db_instance" "postgres" {
-  identifier              = "fast-food-db"  
+resource "aws_db_instance" "payments_db" {
+  identifier              = "payments-db"
   allocated_storage       = 20
   engine                  = "postgres"
   engine_version          = "13.14"
   instance_class          = "db.t3.micro"
-  db_name                 = var.db_name
-  username                = var.db_username
-  password                = var.db_password
+  db_name                 = var.payments_db_name
+  username                = var.payments_db_username
+  password                = var.payments_db_password
   parameter_group_name    = "default.postgres13"
   skip_final_snapshot     = true
   vpc_security_group_ids  = [aws_security_group.rds_sg.id]
