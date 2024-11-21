@@ -1,3 +1,20 @@
+# vars
+variable "aws_region" {
+  description = "Região da AWS"
+  type        = string
+  default     = "us-east-1"
+}
+variable "allowed_cidr" {
+  description = "CIDR block permitido para acessar o banco de dados"
+  type        = string
+  default     = "0.0.0.0/0"
+}
+variable "subnet_group_name" {
+  description = "Nome do grupo de subnets"
+  type        = string
+  default     = "rds-subnet-group"
+}
+
 provider "aws" {
   region = var.aws_region
 }
@@ -67,18 +84,20 @@ resource "aws_db_subnet_group" "rds_subnet_group" {
   }
 }
 
-# Criar o banco de dados RDS PostgreSQL
-resource "aws_db_instance" "payments_db" {
-  identifier              = "payments-db"
-  allocated_storage       = 20
-  engine                  = "postgres"
-  engine_version          = "13.14"
-  instance_class          = "db.t3.micro"
-  db_name                 = var.payments_db_name
-  username                = var.payments_db_username
-  password                = var.payments_db_password
-  parameter_group_name    = "default.postgres13"
-  skip_final_snapshot     = true
-  vpc_security_group_ids  = [aws_security_group.rds_sg.id]
-  db_subnet_group_name    = aws_db_subnet_group.rds_subnet_group.name
+# param store
+resource "aws_ssm_parameter" "security_group" {
+  name  = "/rds/security_group"
+  type  = "String"
+  value = aws_security_group.rds_sg.id
+}
+resource "aws_ssm_parameter" "subnet_group" {
+  name  = "/rds/subnet_group"
+  type  = "String"
+  value = aws_db_subnet_group.rds_subnet_group.name
+}
+
+# out
+output "security_group_id" {
+  description = "ID do Security Group"
+  value       = aws_security_group.rds_sg.id
 }
