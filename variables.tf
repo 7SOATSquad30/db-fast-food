@@ -16,20 +16,20 @@ variable "subnet_group_name" {
   default     = "rds-subnet-group"
 }
 
-variable "db_name" {
-  description = "Nome do banco de dados"
+variable "payments_db_name" {
+  description = "payments_db Nome do banco de dados"
   type        = string
   sensitive = true
 }
 
-variable "db_username" {
-  description = "Nome de usuário do banco de dados"
+variable "payments_db_username" {
+  description = "payments_db Nome de usuário do banco de dados"
   type        = string
   sensitive = true
 }
 
-variable "db_password" {
-  description = "Senha do banco de dados"
+variable "payments_db_password" {
+  description = "payments_db Senha do banco de dados"
   type        = string
   sensitive   = true
 }

@@ -23,6 +23,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
       # Passo 3: Instalar o Terraform
@@ -36,18 +37,18 @@ jobs:
       # Passo 5: Aplicar ou Destruir a Infraestrutura
       - name: Apply or Destroy Terraform
         env:
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          PAYMENTS_DB_NAME: ${{ secrets.PAYMENTS_DB_NAME }}
+          PAYMENTS_DB_USERNAME: ${{ secrets.PAYMENTS_DB_USERNAME }}
+          PAYMENTS_DB_PASSWORD: ${{ secrets.PAYMENTS_DB_PASSWORD }}
         run: |
           if [ "${{ github.event.inputs.destroy_flag }}" == "true" ]; then
             terraform destroy -auto-approve \
-              -var "db_name=${{ secrets.DB_NAME }}" \
-              -var "db_username=${{ secrets.DB_USERNAME }}" \
-              -var "db_password=${{ secrets.DB_PASSWORD }}"
+              -var "payments_db_name=${{ secrets.PAYMENTS_DB_NAME }}" \
+              -var "payments_db_username=${{ secrets.PAYMENTS_DB_USERNAME }}" \
+              -var "payments_db_password=${{ secrets.PAYMENTS_DB_PASSWORD }}"
           else
             terraform apply -auto-approve \
-              -var "db_name=${{ secrets.DB_NAME }}" \
-              -var "db_username=${{ secrets.DB_USERNAME }}" \
-              -var "db_password=${{ secrets.DB_PASSWORD }}"
+              -var "payments_db_name=${{ secrets.PAYMENTS_DB_NAME }}" \
+              -var "payments_db_username=${{ secrets.PAYMENTS_DB_USERNAME }}" \
+              -var "payments_db_password=${{ secrets.PAYMENTS_DB_PASSWORD }}"
           fi
