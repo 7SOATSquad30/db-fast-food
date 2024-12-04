@@ -44,7 +44,10 @@ jobs:
               -var "products_db_password=${{ secrets.PRODUCTS_DB_PASSWORD }}" \
               -var "customer_db_name=${{ secrets.CUSTOMER_DB_NAME }}" \
               -var "customer_db_username=${{ secrets.CUSTOMER_DB_USERNAME }}" \
-              -var "customer_db_password=${{ secrets.CUSTOMER_DB_PASSWORD }}" 
+              -var "customer_db_password=${{ secrets.CUSTOMER_DB_PASSWORD }}" \
+              -var "order_db_name=${{ secrets.ORDER_DB_NAME }}" \
+              -var "order_db_username=${{ secrets.ORDER_DB_USERNAME }}" \
+              -var "order_db_password=${{ secrets.ORDER_DB_PASSWORD }}" 
           else
             terraform apply -auto-approve \
               -var "products_db_name=${{ secrets.PRODUCTS_DB_NAME }}" \
@@ -52,5 +55,8 @@ jobs:
               -var "products_db_password=${{ secrets.PRODUCTS_DB_PASSWORD }}" \
               -var "customer_db_name=${{ secrets.CUSTOMER_DB_NAME }}" \
               -var "customer_db_username=${{ secrets.CUSTOMER_DB_USERNAME }}" \
-              -var "customer_db_password=${{ secrets.CUSTOMER_DB_PASSWORD }}" 
+              -var "customer_db_password=${{ secrets.CUSTOMER_DB_PASSWORD }}" \
+              -var "order_db_name=${{ secrets.ORDER_DB_NAME }}" \
+              -var "order_db_username=${{ secrets.ORDER_DB_USERNAME }}" \
+              -var "order_db_password=${{ secrets.ORDER_DB_PASSWORD }}" 
           fi
