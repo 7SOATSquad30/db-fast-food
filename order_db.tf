@@ -17,7 +17,7 @@ variable "order_db_password" {
 
 # rds
 resource "aws_db_instance" "order_db" {
-  identifier              = "order-db"
+  identifier              = "orders-db"
   allocated_storage       = 20
   engine                  = "postgres"
   engine_version          = "13.14"
